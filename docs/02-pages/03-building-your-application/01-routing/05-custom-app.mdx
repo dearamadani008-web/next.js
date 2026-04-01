@@ -1,89 +1,186 @@
----
-title: Custom App
-description: Control page initialization and add a layout that persists for all pages by overriding the default App component used by Next.js.
----
+"use client";
 
-Next.js uses the `App` component to initialize pages. You can override it and control the page initialization and:
+import React, { useEffect, useState } from 'react';
+import { motion, useScroll, useSpring, AnimatePresence } from 'framer-motion';
 
-- Create a shared layout between page changes
-- Inject additional data into pages
-- [Add global CSS](/docs/app/getting-started/css)
+// --- DATA ASLI DARI CV DEA FITRI RAMADANI ---
+const DATA = {
+  name: "Dea Fitri Ramadani, S.Si.",
+  role: "Administrasi & Operasional | Pengolahan Data | Business Support",
+  about: "Lulusan S1 Biologi Terapan Universitas Lampung dengan predikat Cum Laude (IPK 3,81). Lulusan Terbaik ke-3 FMIPA Unila. Berpengalaman dalam analisis data, administrasi, dan pengembangan produk berbasis sains. Memiliki sertifikasi Digital Marketing BNSP dan Azure AI Fundamentals.",
+  email: "dearamadani008@gmail.com",
+  phone: "083137386555",
+  location: "Bandar Lampung, Indonesia",
+  linkedin: "https://www.linkedin.com/in/dea-fitri-ramadani-19a41a24a",
+  skills: [
+    "Microsoft Excel (Data Processing)", "Digital Marketing (BNSP)", 
+    "Azure AI Fundamentals", "Analisis Data Dasar", "Teknik Laboratorium", 
+    "Public Speaking", "Administration Support"
+  ],
+  experience: [
+    {
+      title: "Internship (Magang)",
+      org: "Balai Kekarantinaan Kesehatan Kelas I Panjang",
+      date: "Januari 2024 - Desember 2025",
+      desc: "Terlibat dalam pengawasan kesehatan dan pencegahan penyebaran penyakit di wilayah pintu masuk."
+    },
+    {
+      title: "Staf Divisi Sains dan Teknologi",
+      org: "Himpunan Mahasiswa Biologi Unila",
+      date: "2023 - 2024",
+      desc: "Mengorganisir Olimpiade Sains tingkat SMA dengan 50+ peserta dan program edukasi ilmiah."
+    }
+  ],
+  achievements: [
+    { title: "Silver Medal National Competition", detail: "Proyek Golden Bran Cookies (2024)" },
+    { title: "Juara 1 English Speech", detail: "National Competition Diespro (2025)" },
+    { title: "Lulusan Terbaik ke-3", detail: "FMIPA Universitas Lampung (2026)" }
+  ]
+};
 
-## Usage
+// --- KOMPONEN ANIMASI REVEAL ---
+const FadeIn = ({ children }: { children: React.ReactNode }) => (
+  <motion.div
+    initial={{ opacity: 0, y: 30 }}
+    whileInView={{ opacity: 1, y: 0 }}
+    viewport={{ once: true }}
+    transition={{ duration: 0.8, ease: "easeOut" }}
+  >
+    {children}
+  </motion.div>
+);
 
-To override the default `App`, create the file `pages/_app` as shown below:
+export default function Portfolio() {
+  const { scrollYProgress } = useScroll();
+  const scaleX = useSpring(scrollYProgress, { stiffness: 100, damping: 30 });
+  const [mounted, setMounted] = useState(false);
 
-```tsx filename="pages/_app.tsx" switcher
-import type { AppProps } from 'next/app'
+  useEffect(() => { setMounted(true); }, []);
 
-export default function MyApp({ Component, pageProps }: AppProps) {
-  return <Component {...pageProps} />
-}
-```
+  if (!mounted) return null;
 
-```jsx filename="pages/_app.jsx" switcher
-export default function MyApp({ Component, pageProps }) {
-  return <Component {...pageProps} />
-}
-```
-
-The `Component` prop is the active `page`, so whenever you navigate between routes, `Component` will change to the new `page`. Therefore, any props you send to `Component` will be received by the `page`.
-
-`pageProps` is an object with the initial props that were preloaded for your page by one of our [data fetching methods](/docs/pages/building-your-application/data-fetching), otherwise it's an empty object.
-
-> **Good to know**:
->
-> - If your app is running and you added a custom `App`, you'll need to restart the development server. Only required if `pages/_app.js` didn't exist before.
-> - `App` does not support Next.js [Data Fetching methods](/docs/pages/building-your-application/data-fetching) like [`getStaticProps`](/docs/pages/building-your-application/data-fetching/get-static-props) or [`getServerSideProps`](/docs/pages/building-your-application/data-fetching/get-server-side-props).
-
-## `getInitialProps` with `App`
-
-Using [`getInitialProps`](/docs/pages/api-reference/functions/get-initial-props) in `App` will disable [Automatic Static Optimization](/docs/pages/building-your-application/rendering/automatic-static-optimization) for pages without [`getStaticProps`](/docs/pages/building-your-application/data-fetching/get-static-props).
-
-**We do not recommend using this pattern.** Instead, consider [incrementally adopting](/docs/app/guides/migrating/app-router-migration) the App Router, which allows you to more easily fetch data for pages and layouts.
-
-```tsx filename="pages/_app.tsx" switcher
-import App, { AppContext, AppInitialProps, AppProps } from 'next/app'
-
-type AppOwnProps = { example: string }
-
-export default function MyApp({
-  Component,
-  pageProps,
-  example,
-}: AppProps & AppOwnProps) {
   return (
-    <>
-      <p>Data: {example}</p>
-      <Component {...pageProps} />
-    </>
-  )
+    <main className="bg-[#0a0a0a] text-[#fdfaf1] font-sans selection:bg-[#800000] selection:text-white">
+      {/* Progress Bar */}
+      <motion.div className="fixed top-0 left-0 right-0 h-1 bg-[#800000] z-[100] origin-left" style={{ scaleX }} />
+
+      {/* NAVBAR */}
+      <nav className="fixed top-0 w-full z-50 mix-blend-difference px-6 py-8 flex justify-between items-center">
+        <span className="font-bold tracking-tighter text-xl">DEA.F</span>
+        <div className="hidden md:flex gap-10 text-[10px] uppercase tracking-[0.3em] font-medium">
+          <a href="#about" className="hover:text-[#800000] transition-all">About</a>
+          <a href="#experience" className="hover:text-[#800000] transition-all">Experience</a>
+          <a href="#contact" className="hover:text-[#800000] transition-all">Contact</a>
+        </div>
+      </nav>
+
+      {/* HERO SECTION */}
+      <section className="min-h-screen flex flex-col justify-center px-6 md:px-24 relative overflow-hidden">
+        <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-[#800000]/10 rounded-full blur-[120px]" />
+        
+        <FadeIn>
+          <h2 className="text-[#800000] font-medium tracking-[0.4em] uppercase text-xs mb-6">Available for Business Support</h2>
+          <h1 className="text-6xl md:text-[120px] font-serif leading-[0.9] tracking-tighter mb-8">
+            {DATA.name.split(' ').slice(0,2).join(' ')} <br/>
+            <span className="text-[#800000] italic font-light">{DATA.name.split(' ').slice(2).join(' ')}</span>
+          </h1>
+          <p className="max-w-xl text-lg text-[#fdfaf1]/60 leading-relaxed">
+            {DATA.role}
+          </p>
+        </FadeIn>
+      </section>
+
+      {/* MARQUEE SKILLS */}
+      <div className="bg-[#800000] py-6 flex overflow-hidden border-y border-white/10 relative z-10">
+        <motion.div 
+          animate={{ x: [0, -1000] }} 
+          transition={{ duration: 25, repeat: Infinity, ease: "linear" }}
+          className="flex gap-12 whitespace-nowrap text-2xl font-serif italic text-[#fdfaf1]"
+        >
+          {DATA.skills.concat(DATA.skills).map((s, i) => (
+            <span key={i} className="flex items-center gap-12 uppercase tracking-tighter">
+              {s} <span className="text-sm">✦</span>
+            </span>
+          ))}
+        </motion.div>
+      </div>
+
+      {/* ABOUT SECTION */}
+      <section id="about" className="py-32 px-6 md:px-24 bg-[#fdfaf1] text-[#0a0a0a]">
+        <div className="grid md:grid-cols-2 gap-16">
+          <FadeIn>
+            <h2 className="text-5xl font-serif mb-8 text-[#800000]">Personal <br/>Profile</h2>
+          </FadeIn>
+          <FadeIn>
+            <p className="text-xl leading-relaxed font-light mb-8">
+              {DATA.about}
+            </p>
+            <div className="grid grid-cols-2 gap-8 border-t border-[#0a0a0a]/10 pt-8">
+              <div>
+                <h4 className="text-[#800000] text-xs font-bold uppercase mb-2">Education</h4>
+                <p className="text-sm">S1 Biologi Terapan<br/>Universitas Lampung</p>
+              </div>
+              <div>
+                <h4 className="text-[#800000] text-xs font-bold uppercase mb-2">GPA</h4>
+                <p className="text-sm italic font-serif text-2xl">3.81 / 4.00</p>
+              </div>
+            </div>
+          </FadeIn>
+        </div>
+      </section>
+
+      {/* EXPERIENCE & ACHIEVEMENT */}
+      <section id="experience" className="py-32 px-6 md:px-24">
+        <FadeIn>
+          <h3 className="text-[#800000] uppercase tracking-[0.3em] text-xs font-bold mb-16">Featured Journey</h3>
+        </FadeIn>
+        
+        <div className="space-y-24">
+          {DATA.experience.map((exp, i) => (
+            <FadeIn key={i}>
+              <div className="group grid md:grid-cols-[1fr_2fr] gap-8 border-b border-white/10 pb-12">
+                <span className="text-[#fdfaf1]/40 font-serif italic">{exp.date}</span>
+                <div>
+                  <h4 className="text-3xl mb-4 group-hover:text-[#800000] transition-colors">{exp.title}</h4>
+                  <p className="text-[#800000] mb-4 font-medium">{exp.org}</p>
+                  <p className="text-[#fdfaf1]/60 leading-relaxed max-w-2xl">{exp.desc}</p>
+                </div>
+              </div>
+            </FadeIn>
+          ))}
+        </div>
+
+        <div className="mt-32 grid md:grid-cols-3 gap-8">
+          {DATA.achievements.map((ac, i) => (
+            <FadeIn key={i}>
+              <div className="p-8 border border-white/10 hover:border-[#800000] transition-all">
+                <div className="text-2xl font-serif mb-4 italic">"{ac.title}"</div>
+                <p className="text-xs text-[#fdfaf1]/40 uppercase tracking-widest">{ac.detail}</p>
+              </div>
+            </FadeIn>
+          ))}
+        </div>
+      </section>
+
+      {/* CONTACT SECTION */}
+      <section id="contact" className="py-32 px-6 md:px-24 bg-[#800000] text-[#fdfaf1] rounded-t-[50px]">
+        <div className="text-center max-w-4xl mx-auto">
+          <FadeIn>
+            <h2 className="text-5xl md:text-8xl font-serif mb-12 tracking-tighter">Let's Work Together</h2>
+            <p className="mb-12 text-lg text-white/70 italic">Tersedia untuk peluang kerja profesional di bidang Administrasi, Data, dan Operasional.</p>
+            
+            <div className="flex flex-col md:flex-row justify-center gap-8 md:gap-16 text-xl font-light">
+              <a href={`mailto:${DATA.email}`} className="hover:line-through transition-all">{DATA.email}</a>
+              <a href={`https://wa.me/${DATA.phone}`} className="hover:line-through transition-all">WhatsApp</a>
+              <a href={DATA.linkedin} target="_blank" className="hover:line-through transition-all">LinkedIn</a>
+            </div>
+            
+            <div className="mt-24 pt-8 border-t border-white/20 text-[10px] uppercase tracking-[0.5em] opacity-50">
+              © 2026 {DATA.name} • Built with Next.js & Framer Motion
+            </div>
+          </FadeIn>
+        </div>
+      </section>
+    </main>
+  );
 }
-
-MyApp.getInitialProps = async (
-  context: AppContext
-): Promise<AppOwnProps & AppInitialProps> => {
-  const ctx = await App.getInitialProps(context)
-
-  return { ...ctx, example: 'data' }
-}
-```
-
-```jsx filename="pages/_app.jsx" switcher
-import App from 'next/app'
-
-export default function MyApp({ Component, pageProps, example }) {
-  return (
-    <>
-      <p>Data: {example}</p>
-      <Component {...pageProps} />
-    </>
-  )
-}
-
-MyApp.getInitialProps = async (context) => {
-  const ctx = await App.getInitialProps(context)
-
-  return { ...ctx, example: 'data' }
-}
-```
